@@ -1,0 +1,30 @@
+#!/bin/bash
+set -euo pipefail
+
+echo "📦 Installing core packages ..."
+
+{{- if eq .chezmoi.os "darwin" }}
+eval "$(/opt/homebrew/bin/brew shellenv)"
+{{- else }}
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv 2>/dev/null || true)"
+{{- end }}
+
+packages=(
+  jq
+  yq
+  wget
+  mise
+)
+
+for pkg in "${packages[@]}"; do
+    if brew list "$pkg" &>/dev/null; then
+        echo "✅ $pkg"
+    else
+        brew install "$pkg"
+    fi
+done
+
+echo "📁 Creating directories..."
+mkdir -p ~/code/{work,personal}
+
+echo "✅ Done"
