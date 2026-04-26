@@ -1,0 +1,19 @@
+[user]
+  name = {{ .name }}
+  email = {{ .email }}
+[core]
+  editor = {{ .editor }}
+[alias]
+  st = status
+  co = checkout
+  br = branch
+  ci = commit
+  lg = log --oneline --graph --all
+[init]
+  defaultBranch = main
+
+[push]
+  autoSetupRemote = true
+
+[pull]
+  rebase = true
