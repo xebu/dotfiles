@@ -17,7 +17,6 @@ packages=(
   starship
   bat
   tree
-  ghostty
   tmux
 )
 
@@ -28,6 +27,22 @@ for pkg in "${packages[@]}"; do
         brew install "$pkg"
     fi
 done
+
+{{- if eq ".chezmoi.os" "darwin"}}
+# Casks - MacOS only
+casks=(
+  ghostty
+  visual-studio-code
+)
+
+for cask in "${casks[@]}"; do
+  if brew list --cask "$cask" &>/dev/null; then
+    echo "✅ $cask"
+  else
+    brew install --cask "$cask"
+  fi
+done
+{{-end }}
 
 echo "📁 Creating directories..."
 mkdir -p ~/code/{work,personal}
