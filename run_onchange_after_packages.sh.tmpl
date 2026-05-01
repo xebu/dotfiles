@@ -28,7 +28,7 @@ for pkg in "${packages[@]}"; do
     fi
 done
 
-{{- if eq .chezmoi.os "darwin"}}
+{{- if eq .chezmoi.os "darwin" }}
 # Casks - MacOS only
 casks=(
   ghostty
@@ -42,7 +42,7 @@ for cask in "${casks[@]}"; do
     brew install --cask "$cask"
   fi
 done
-{{-end }}
+{{- end }}
 
 echo "📁 Creating directories..."
 mkdir -p ~/code/{work,personal}
