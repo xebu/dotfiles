@@ -1,0 +1,20 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/bin/bash
+set -euo pipefail
+
+# ------------------------------------------------------------------------------
+# Install Rosetta 2
+# ------------------------------------------------------------------------------
+# Intel compatibility layer for Apple Silicon Macs
+# Required for some Homebrew formulae and x86 applications
+# ------------------------------------------------------------------------------
+
+if [[ $(uname -m) == "arm64" ]]; then
+    if ! /usr/bin/pgrep -q oahd; then
+        echo "📦 Installing Rosetta..."
+        sudo softwareupdate --install-rosetta --agree-to-license
+    else
+        echo "✅ Rosetta already installed"
+    fi
+fi
+{{- end }}
