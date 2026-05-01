@@ -28,7 +28,7 @@ for pkg in "${packages[@]}"; do
     fi
 done
 
-{{- if eq ".chezmoi.os" "darwin"}}
+{{- if eq .chezmoi.os "darwin"}}
 # Casks - MacOS only
 casks=(
   ghostty
