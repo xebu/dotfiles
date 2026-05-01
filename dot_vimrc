@@ -1,8 +1,26 @@
+" ------------------------------------------------------------------------------
+" Vim Configuration
+" ------------------------------------------------------------------------------
+
+" --- Core ---
+
 syntax on
 set number
-set relative number
+set relativenumber
 set tabstop=2
 set shiftwidth=2
 set expandtab
 set autoindent
 set background=dark
+
+" --- Snippets ---
+
+" Section divider: \d in normal mode
+nnoremap <leader>d i# --- <C-o>:startinsert<CR>
+
+" File header: \h in normal mode
+nnoremap <leader>h i# ------------------------------------------------------------------------------<CR># <CR># ------------------------------------------------------------------------------<Esc>kA
+
+" Abbreviations (type and press space)
+iabbrev #div # --- Section ---
+iabbrev #hdr # ------------------------------------------------------------------------------<CR># Description<CR># ------------------------------------------------------------------------------

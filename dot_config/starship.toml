@@ -1,3 +1,7 @@
+# ------------------------------------------------------------------------------
+# Starship Prompt
+# ------------------------------------------------------------------------------
+
 format = """
 $directory\
 $git_branch\
@@ -7,29 +11,37 @@ $time\
 $line_break\
 $character"""
 
+# --- Path & Git ---
+
 [directory]
-truncation_length = 3
+format = "[$path]($style) "
+style = "bold cyan"
+truncation_length = 1
+truncate_to_repo = true
 
 [git_branch]
-format = " [$symbol$branch]($style)"
-symbol = "git:"
+format = "on [$symbol$branch]($style) "
+symbol = "🌿 "
 style = "bold purple"
 
 [git_status]
-format = "[$all_status$ahead_behind]($style) "
+format = "[$all_status$ahead_behind$stashed]($style)"
+stashed = " 📦${count}"
 style = "bold red"
 
-[cmd_duration]
-min_time = 2000
-format = " took [$duration]($style)"
-style = "yellow"
+# --- Prompt UI ---
 
-[character]
-success_symbol = "[>](bold green)"
-error_symbol = "[>](bold red)"
+[cmd_duration]
+min_time = 500
+format = "underwent [$duration]($style) "
+style = "bold yellow"
 
 [time]
 disabled = false
-format = " [$time]($style)"
+format = "[$time]($style) "
 style = "dim white"
-time_format = "%H:%M"
+time_format = "%H:%M %Z"
+
+[character]
+success_symbol = "[→](bold green)"
+error_symbol = "[→](bold red)"
