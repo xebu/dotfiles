@@ -1,0 +1,106 @@
+#!/bin/bash
+set -euo pipefail
+
+# ------------------------------------------------------------------------------
+# Setup Git SSH Identity
+# ------------------------------------------------------------------------------
+# Generates SSH key, adds to config, copies public key, opens browser
+# ------------------------------------------------------------------------------
+
+SSH_DIR="$HOME/.ssh"
+SSH_CONFIG="$SSH_DIR/config"
+mkdir -p "$SSH_DIR"
+chmod 700 "$SSH_DIR"
+touch "$SSH_CONFIG"
+
+echo "📝 Setup Git SSH identity"
+echo ""
+
+read -p "Provider (github/gitlab/bitbucket): " provider
+read -p "Profile name (e.g., personal, work, client-a): " profile
+read -p "Username on $provider: " username
+read -p "Email for this identity: " email
+
+keyfile="id_ed25519_${provider}_${profile}"
+keypath="$SSH_DIR/$keyfile"
+
+case $provider in
+    github)    hostname="github.com"; keyurl="https://github.com/settings/keys" ;;
+    gitlab)    hostname="gitlab.com"; keyurl="https://gitlab.com/-/profile/keys" ;;
+    bitbucket) hostname="bitbucket.org"; keyurl="https://bitbucket.org/account/settings/ssh-keys/" ;;
+    *)         hostname="$provider"; keyurl="" ;;
+esac
+
+# --- Generate key if not exists ---
+if [[ -f "$keypath" ]]; then
+    echo "⚠️  Key already exists: $keypath"
+else
+    echo "🔑 Generating SSH key..."
+    ssh-keygen -t ed25519 -C "$email" -f "$keypath" -N ""
+fi
+
+# --- Add to SSH config ---
+if grep -q "Host $provider-$profile" "$SSH_CONFIG" 2>/dev/null; then
+    echo "⚠️  Host $provider-$profile already in SSH config"
+else
+    cat >> "$SSH_CONFIG" <<EOF
+
+# $username - $profile
+Host $provider-$profile
+  HostName $hostname
+  User git
+  IdentityFile $keypath
+  AddKeysToAgent yes
+{{- if eq .chezmoi.os "darwin" }}
+  UseKeychain yes
+{{- end }}
+  IdentitiesOnly yes
+EOF
+    echo "✅ Added to SSH config"
+fi
+
+# --- Add to agent ---
+{{- if eq .chezmoi.os "darwin" }}
+ssh-add --apple-use-keychain "$keypath" 2>/dev/null || ssh-add "$keypath"
+{{- else }}
+ssh-add "$keypath"
+{{- end }}
+
+# --- Copy public key ---
+{{- if eq .chezmoi.os "darwin" }}
+cat "${keypath}.pub" | pbcopy
+echo ""
+echo "✅ Public key copied to clipboard"
+{{- else }}
+if command -v xclip &>/dev/null; then
+    cat "${keypath}.pub" | xclip -selection clipboard
+    echo ""
+    echo "✅ Public key copied to clipboard"
+elif command -v wl-copy &>/dev/null; then
+    cat "${keypath}.pub" | wl-copy
+    echo ""
+    echo "✅ Public key copied to clipboard"
+else
+    echo ""
+    echo "📋 Public key:"
+    cat "${keypath}.pub"
+fi
+{{- end }}
+
+# --- Open browser ---
+if [[ -n "$keyurl" ]]; then
+{{- if eq .chezmoi.os "darwin" }}
+    open "$keyurl"
+{{- else }}
+    xdg-open "$keyurl" 2>/dev/null || echo "👉 Open: $keyurl"
+{{- end }}
+fi
+
+echo ""
+echo "👉 Paste your key at: $keyurl"
+echo ""
+echo "Then clone with:"
+echo "  git clone $provider-$profile:$username/repo.git"
+echo ""
+echo "Update existing remote:"
+echo "  git remote set-url origin $provider-$profile:$username/repo.git"
