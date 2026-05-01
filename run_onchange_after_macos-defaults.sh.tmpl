@@ -1,0 +1,91 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/usr/bin/env bash
+# ------------------------------------------------------------------------------
+# macOS System Defaults
+# ------------------------------------------------------------------------------
+# Applies personal macOS preferences for:
+# - Finder
+# - Dock
+# - Mission Control
+# - Keyboard
+# - Screenshots
+# - Scrollbars
+# ------------------------------------------------------------------------------
+
+set -euo pipefail
+
+echo "⚙️ Applying macOS system defaults..."
+
+# --- Finder ---
+echo "🪟 Configuring Finder..."
+defaults write com.apple.finder AppleShowAllFiles -bool true
+defaults write com.apple.finder ShowPathbar -bool true
+defaults write com.apple.finder ShowStatusBar -bool true
+defaults write com.apple.finder QuitMenuItem -bool true
+defaults write com.apple.finder _FXSortFoldersFirst -bool true
+defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int 1
+
+# --- Dock ---
+echo "🧭 Configuring Dock..."
+defaults write com.apple.dock autohide -bool true
+defaults write com.apple.dock autohide-delay -float 0
+defaults write com.apple.dock autohide-time-modifier -int 0
+defaults write com.apple.dock tilesize -int 36
+defaults write com.apple.dock mineffect -string "scale"
+defaults write com.apple.dock minimize-to-application -bool true
+defaults write com.apple.dock show-process-indicators -bool true
+defaults write com.apple.dock orientation -string "left"
+defaults write com.apple.dock show-recents -bool false
+
+# --- Mission Control ---
+echo "🚀 Configuring Mission Control..."
+defaults write com.apple.dock mru-spaces -bool false
+defaults write com.apple.dock expose-group-apps -bool true
+
+# --- Keyboard ---
+echo "⌨️ Configuring Keyboard..."
+defaults write NSGlobalDomain KeyRepeat -int 2
+defaults write NSGlobalDomain InitialKeyRepeat -int 15
+defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+
+# --- Screenshots ---
+echo "📸 Configuring Screenshots..."
+defaults write com.apple.screencapture target clipboard
+defaults write com.apple.screencapture type -string "png"
+defaults write com.apple.screencapture disable-shadow -bool true
+
+# --- Scrollbars ---
+echo "🖱️ Setting scrollbars to always show..."
+defaults write NSGlobalDomain AppleShowScrollBars -string "Always"
+
+# --- Spaces (Ctrl+1/2/3 to switch) ---
+echo "🖥️ Configuring Spaces shortcuts..."
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 118 "{ enabled = 1; value = { parameters = (65535, 18, 262144); type = standard; }; }"
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 119 "{ enabled = 1; value = { parameters = (65535, 19, 262144); type = standard; }; }"
+defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 120 "{ enabled = 1; value = { parameters = (65535, 20, 262144); type = standard; }; }"
+
+# --- Menu Bar (Control Center) ---
+# Note: Most menu bar items are now managed via System Settings > Control Center
+
+{{- $isLaptop := contains "MacBook" (output "sysctl" "-n" "hw.model" | trim) }}
+{{- if $isLaptop }}
+# Laptop-specific: battery and time
+echo "🔋 Configuring battery (laptop detected)..."
+defaults write com.apple.controlcenter "NSStatusItem Visible Battery" -bool true
+defaults -currentHost write com.apple.controlcenter BatteryShowPercentage -bool true
+{{- else }}
+echo "🖥️ Desktop detected — skipping battery settings"
+{{- end }}
+
+# --- Restart affected services ---
+echo "♻️ Restarting UI services..."
+killall Dock || true
+killall Finder || true
+killall SystemUIServer || true
+/System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
+
+echo "✅ macOS defaults applied"
+echo ""
+echo "⚠️  Some settings require logout/restart to take effect"
+echo "⚠️  Menu bar items: configure manually in System Settings > Control Center"
+{{- end }}
