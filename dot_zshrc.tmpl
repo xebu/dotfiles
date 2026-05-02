@@ -1,33 +1,43 @@
-# Managed by chezmoi
+# ------------------------------------------------------------------------------
+# Zsh Configuration
+# ------------------------------------------------------------------------------
 
-# Homebrew
+# --- Path ---
+export PATH="$HOME/bin:$PATH"
+
+# --- Homebrew ---
 {{- if eq .chezmoi.os "darwin" }}
 eval "$(/opt/homebrew/bin/brew shellenv)"
 {{- else if eq .chezmoi.os "linux" }}
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv 2>/dev/null || true)"
 {{- end }}
 
-# Editor
+# --- Editor ---
 export EDITOR="{{ .editor }}"
 export VISUAL="{{ .editor }}"
 
-# mise (version manager)
+# --- mise ---
 if command -v mise &>/dev/null; then
   eval "$(mise activate zsh)"
-fi 
+fi
 
-# Starship prompt
+# --- Starship ---
 if command -v starship &>/dev/null; then
   eval "$(starship init zsh)"
 fi
 
-# History
+# --- History ---
 HISTFILE=~/.zsh_history
 HISTSIZE=10000
+SAVEHIST=10000
 setopt SHARE_HISTORY
 setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_SPACE
 
-# Aliases
+# --- Aliases ---
 alias ll="ls -lah"
 alias cat="bat"
+alias ss="source ~/.zshrc"
+
+# --- Local ---
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
