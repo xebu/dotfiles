@@ -4,8 +4,6 @@ set -euo pipefail
 # ------------------------------------------------------------------------------
 # Setup Git SSH Identity
 # ------------------------------------------------------------------------------
-# Generates SSH key, adds to config, copies public key, opens browser
-# ------------------------------------------------------------------------------
 
 SSH_DIR="$HOME/.ssh"
 SSH_CONFIG="$SSH_DIR/config"
@@ -17,12 +15,9 @@ echo "📝 Setup Git SSH identity"
 echo ""
 
 read -p "Provider (github/gitlab/bitbucket): " provider
-read -p "Profile name (e.g., personal, work, client-a): " profile
 read -p "Username on $provider: " username
 read -p "Email for this identity: " email
-
-keyfile="id_ed25519_${provider}_${profile}"
-keypath="$SSH_DIR/$keyfile"
+read -p "Is this your primary key? (y/n): " is_primary
 
 case $provider in
     github)    hostname="github.com"; keyurl="https://github.com/settings/keys" ;;
@@ -30,6 +25,16 @@ case $provider in
     bitbucket) hostname="bitbucket.org"; keyurl="https://bitbucket.org/account/settings/ssh-keys/" ;;
     *)         hostname="$provider"; keyurl="" ;;
 esac
+
+if [[ "$is_primary" == "y" ]]; then
+    keyfile="id_ed25519"
+else
+    device=$(hostname -s | tr '[:upper:]' '[:lower:]')
+    keyfile="id_ed25519_${username}_${device}"
+fi
+
+keypath="$SSH_DIR/$keyfile"
+host_alias="$provider-$username"
 
 # --- Generate key if not exists ---
 if [[ -f "$keypath" ]]; then
@@ -40,13 +45,13 @@ else
 fi
 
 # --- Add to SSH config ---
-if grep -q "Host $provider-$profile" "$SSH_CONFIG" 2>/dev/null; then
-    echo "⚠️  Host $provider-$profile already in SSH config"
+if grep -q "Host $host_alias" "$SSH_CONFIG" 2>/dev/null; then
+    echo "⚠️  Host $host_alias already in SSH config"
 else
     cat >> "$SSH_CONFIG" <<EOF
 
-# $username - $profile
-Host $provider-$profile
+# $username
+Host $host_alias
   HostName $hostname
   User git
   IdentityFile $keypath
@@ -74,14 +79,11 @@ echo "✅ Public key copied to clipboard"
 {{- else }}
 if command -v xclip &>/dev/null; then
     cat "${keypath}.pub" | xclip -selection clipboard
-    echo ""
     echo "✅ Public key copied to clipboard"
 elif command -v wl-copy &>/dev/null; then
     cat "${keypath}.pub" | wl-copy
-    echo ""
     echo "✅ Public key copied to clipboard"
 else
-    echo ""
     echo "📋 Public key:"
     cat "${keypath}.pub"
 fi
@@ -99,8 +101,8 @@ fi
 echo ""
 echo "👉 Paste your key at: $keyurl"
 echo ""
-echo "Then clone with:"
-echo "  git clone $provider-$profile:$username/repo.git"
+echo "Clone with:"
+echo "  git clone $host_alias:$username/repo.git"
 echo ""
 echo "Update existing remote:"
-echo "  git remote set-url origin $provider-$profile:$username/repo.git"
+echo "  git remote set-url origin $host_alias:$username/repo.git"
