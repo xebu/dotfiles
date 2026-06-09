@@ -1,14 +1,31 @@
 [user]
   name = {{ .name }}
   email = {{ .email }}
+
 [core]
   editor = {{ .editor }}
+  pager = delta
+
+[interactive]
+  diffFilter = delta --color-only
+
+[delta]
+  navigate = true
+  side-by-side = true
+
 [alias]
   st = status
   co = checkout
   br = branch
   ci = commit
-  lg = log --oneline --graph --all
+  lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --all
+  ll = log --oneline -10
+  undo = reset HEAD~1 --mixed
+  amend = commit --amend --no-edit
+  wip = commit -am "WIP"
+  unstage = reset HEAD --
+  prune-local = !git fetch -p && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -d
+
 [init]
   defaultBranch = main
 
@@ -17,3 +34,32 @@
 
 [pull]
   rebase = true
+
+[fetch]
+  prune = true
+
+[rerere]
+  enabled = true
+
+[merge]
+  conflictstyle = zdiff3
+
+[diff]
+  colorMoved = default
+
+[rebase]
+  autosquash = true
+  autostash = true
+
+[branch]
+  sort = -committerdate
+
+[help]
+  autocorrect = prompt
+
+[status]
+  showStash = true
+
+# --- Local overrides (not tracked) ---
+[include]
+  path = ~/.gitconfig-local
