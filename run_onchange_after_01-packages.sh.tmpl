@@ -11,21 +11,28 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv 2>/dev/null || true)"
 
 packages=(
   bash
-  git
-  vim
-  jq
-  yq
-  wget
-  mise
-  starship
   bat
-  tree
-  tmux
+  delta
+  direnv
+  eza
+  fd
+  fzf
+  gh
+  git
   git-lfs
   glow
-  eza
+  jq
+  mise
+  ripgrep
+  starship
+  tldr
+  tmux
+  vim
+  wget
+  yq
   zoxide
-  fzf
+  zsh-autosuggestions
+  zsh-syntax-highlighting
 )
 
 for pkg in "${packages[@]}"; do

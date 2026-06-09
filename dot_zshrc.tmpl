@@ -12,9 +12,16 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv 2>/dev/null || true)"
 {{- end }}
 
+# --- Completions ---
+autoload -Uz compinit && compinit
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'r:|=*' 'l:|=* r:|=*'
+
 # --- Editor ---
 export EDITOR="{{ .editor }}"
 export VISUAL="{{ .editor }}"
+
+# --- Keybindings ---
+bindkey -e  # emacs mode (Ctrl+A/E/R work as expected)
 
 # --- mise ---
 if command -v mise &>/dev/null; then
@@ -38,6 +45,20 @@ setopt HIST_IGNORE_SPACE
 alias ll="ls -lah"
 alias cat="bat"
 alias ss="source ~/.zshrc"
+
+# --- Autosuggestions ---
+{{- if eq .chezmoi.os "darwin" }}
+[[ -f /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+{{- else }}
+[[ -f /home/linuxbrew/.linuxbrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]] && source /home/linuxbrew/.linuxbrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+{{- end }}
+
+# --- Syntax highlighting (must be last before .zshrc.local) ---
+{{- if eq .chezmoi.os "darwin" }}
+[[ -f /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+{{- else }}
+[[ -f /home/linuxbrew/.linuxbrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] && source /home/linuxbrew/.linuxbrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+{{- end }}
 
 # --- Local ---
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
