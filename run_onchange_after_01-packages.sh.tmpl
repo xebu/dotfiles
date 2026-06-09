@@ -36,11 +36,17 @@ casks=(
 )
 
 for cask in "${casks[@]}"; do
-  if brew list --cask "$cask" &>/dev/null; then
-    echo "✅ $cask"
-  else
-    brew install --cask "$cask"
-  fi
+    if brew list --cask "$cask" &>/dev/null; then
+        echo "✅ $cask (brew)"
+    else
+        output=$(brew install --cask "$cask" 2>&1) || {
+            if echo "$output" | grep -q "already an App"; then
+                echo "✅ $cask (external)"
+            else
+                echo "❌ $cask failed: $output"
+            fi
+        }
+    fi
 done
 {{- end }}
 
