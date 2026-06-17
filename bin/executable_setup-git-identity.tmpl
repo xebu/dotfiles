@@ -4,6 +4,14 @@ set -euo pipefail
 # ------------------------------------------------------------------------------
 # Setup Git SSH Identity
 # ------------------------------------------------------------------------------
+# Generates an SSH key, registers a Host alias in ~/.ssh/config, adds the
+# key to the agent, copies the public key to the clipboard, and opens the
+# provider's "add SSH key" page.
+#
+# Non-primary key filenames use the stable `device_id` chezmoi data value
+# (set during `chezmoi init`) rather than the machine's hostname, since the
+# hostname can change if the device is ever renamed in System Settings.
+# ------------------------------------------------------------------------------
 
 SSH_DIR="$HOME/.ssh"
 SSH_CONFIG="$SSH_DIR/config"
@@ -29,8 +37,7 @@ esac
 if [[ "$is_primary" == "y" ]]; then
     keyfile="id_ed25519"
 else
-    device=$(hostname -s | tr '[:upper:]' '[:lower:]')
-    keyfile="id_ed25519_${username}_${device}"
+    keyfile="id_ed25519_${username}_{{ .device_id }}"
 fi
 
 keypath="$SSH_DIR/$keyfile"

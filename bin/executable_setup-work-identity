@@ -4,8 +4,15 @@ set -euo pipefail
 # ------------------------------------------------------------------------------
 # Setup Work Git Identity
 # ------------------------------------------------------------------------------
+# Creates a per-client git identity override and wires it up via includeIf.
+#
+# IMPORTANT: the includeIf block is written to ~/.gitconfig-local, NOT the
+# tracked ~/.gitconfig. This keeps client names out of the public dotfiles
+# repo. See docs/git-identity.md for the full rationale.
+# ------------------------------------------------------------------------------
 
 work_base="$HOME/code/work"
+gitconfig_local="$HOME/.gitconfig-local"
 current_dir=$(pwd)
 
 if [[ "$current_dir" != "$work_base"* ]]; then
@@ -18,18 +25,14 @@ relative_path="${current_dir#$work_base}"
 relative_path="${relative_path#/}"
 
 if [[ -z "$relative_path" ]]; then
-    config_file="$HOME/.gitconfig-work"
-    echo "📝 Setting up default work identity"
-else
-    client_name="${relative_path%%/*}"
-    config_file="$work_base/$client_name/.gitconfig-local"
-    echo "📝 Setting up identity for: $client_name"
-    echo ""
-    echo "⚠️  Add to ~/.gitconfig:"
-    echo "   [includeIf \"gitdir:~/code/work/$client_name/\"]"
-    echo "       path = ~/code/work/$client_name/.gitconfig-local"
+    echo "❌ Run this from inside a specific client folder, not ~/code/work/ itself"
+    exit 1
 fi
 
+client_name="${relative_path%%/*}"
+config_file="$work_base/$client_name/.gitconfig-local"
+
+echo "📝 Setting up identity for: $client_name"
 echo ""
 read -p "Git email: " git_email
 read -p "Git name (blank for default): " git_name
@@ -44,3 +47,24 @@ CONF
 echo ""
 echo "✅ Created $config_file"
 cat "$config_file"
+
+# --- Wire up includeIf in ~/.gitconfig-local (NOT ~/.gitconfig) ---
+include_block="[includeIf \"gitdir:~/code/work/$client_name/\"]"
+
+touch "$gitconfig_local"
+if grep -q "$include_block" "$gitconfig_local" 2>/dev/null; then
+    echo ""
+    echo "ℹ️  includeIf already present in ~/.gitconfig-local"
+else
+    cat >> "$gitconfig_local" << INCLUDE
+
+$include_block
+  path = ~/code/work/$client_name/.gitconfig-local
+INCLUDE
+    echo ""
+    echo "✅ Added includeIf to ~/.gitconfig-local (untracked)"
+fi
+
+echo ""
+echo "Verify with:"
+echo "  cd $work_base/$client_name && git config user.email"

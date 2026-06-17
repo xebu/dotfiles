@@ -14,13 +14,12 @@ set autoindent
 set background=dark
 
 " --- Snippets ---
+" Note: section-divider/header snippets below use "#"-style comments,
+" intended for shell/config/TOML files rather than vim/Go/etc.
 
 " Section divider: \d in normal mode
-nnoremap <leader>d i# --- <C-o>:startinsert<CR>
+" Types "# ---  ---" and positions cursor between the dashes to type a label
+nnoremap <leader>d i# ---  ---<Esc>hhi
 
 " File header: \h in normal mode
 nnoremap <leader>h i# ------------------------------------------------------------------------------<CR># <CR># ------------------------------------------------------------------------------<Esc>kA
-
-" Abbreviations (type and press space)
-"iabbrev #div # --- Section ---
-"iabbrev #hdr # ------------------------------------------------------------------------------<CR># Description<CR># ------------------------------------------------------------------------------

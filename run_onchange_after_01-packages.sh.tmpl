@@ -1,6 +1,14 @@
 #!/bin/bash
 set -euo pipefail
 
+# ------------------------------------------------------------------------------
+# Core Package Installation
+# ------------------------------------------------------------------------------
+# Curated core packages + casks (macOS only). This is the declared/target
+# state — if a machine's `brew list` has drifted beyond this list, that's
+# accumulated manual installs, not a reflection of what this script defines.
+# ------------------------------------------------------------------------------
+
 echo "📦 Installing core packages ..."
 
 {{- if eq .chezmoi.os "darwin" }}

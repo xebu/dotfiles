@@ -1,3 +1,7 @@
-{{- if ne .chezmoi.os "darwin" }}
-run_once_before_01-rosetta.sh
-{{- end }}
+# ------------------------------------------------------------------------------
+# Chezmoi Ignore Rules
+# ------------------------------------------------------------------------------
+# No active rules currently.
+# Kept as a placeholder — add rules here if a genuine need arises (e.g.
+# excluding a file only on certain Linux distros once that work starts).
+# ------------------------------------------------------------------------------

@@ -41,4 +41,13 @@ window-padding-y = 10
 # --- macOS ---
 window-decoration = false
 macos-titlebar-style = hidden
-macos-option-as-alt = true
+
+# macos-option-as-alt:
+#   true  -> both Option keys send Alt escape sequences (breaks Option+3 = "#")
+#   left  -> only left Option sends Alt; right Option stays as macOS modifier
+#            for character composition (#, €, etc.)
+# Set to "left" so shell Alt+F/B word-jump works AND right-Option "#" works.
+# Known issue: with an external keyboard, right-Option "#" may still not
+# work even with this setting — root cause not isolated (Ghostty vs keyboard
+# mapping). Workaround: copy/paste the character, or use the built-in keyboard.
+macos-option-as-alt = left
