@@ -18,6 +18,7 @@ eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv 2>/dev/null || true)"
 {{- end }}
 
 packages=(
+  # --- Core ---
   bash
   bat
   delta
@@ -35,12 +36,17 @@ packages=(
   starship
   tldr
   tmux
+  tree
   vim
   wget
   yq
   zoxide
   zsh-autosuggestions
   zsh-syntax-highlighting
+
+  # --- Cloud CLIs ---
+  awscli
+  azure-cli
 )
 
 for pkg in "${packages[@]}"; do
@@ -54,8 +60,22 @@ done
 {{- if eq .chezmoi.os "darwin" }}
 # Casks - MacOS only
 casks=(
+  # --- Core ---
   ghostty
   visual-studio-code
+
+  # --- Cloud ---
+  google-cloud-sdk
+
+  # --- Dev tools ---
+  # docker-desktop
+  # jetbrains-toolbox
+  # insomnia
+
+  # --- Productivity ---
+  # firefox
+  # rectangle
+  # obsidian
 )
 
 for cask in "${casks[@]}"; do
@@ -72,6 +92,12 @@ for cask in "${casks[@]}"; do
     fi
 done
 {{- end }}
+
+# --- mise-managed languages ---
+if command -v mise &>/dev/null; then
+  echo "🔧 Installing mise-managed languages..."
+  mise install
+fi
 
 echo "📁 Creating directories..."
 mkdir -p ~/code/{work,personal}

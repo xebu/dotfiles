@@ -4,6 +4,8 @@
 
 # --- Path ---
 export PATH="$HOME/bin:$PATH"
+export PATH="$PATH:$HOME/.local/opt/go/bin"
+export PATH="$PATH:$HOME/go/bin"
 
 # --- Homebrew ---
 {{- if eq .chezmoi.os "darwin" }}
@@ -33,6 +35,13 @@ if command -v fzf &>/dev/null; then
   source <(fzf --zsh)
 fi
 
+# --- fzf + fd integration ---
+if command -v fd &>/dev/null; then
+  export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+  export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+  export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+fi
+
 # --- Starship ---
 if command -v starship &>/dev/null; then
   eval "$(starship init zsh)"
@@ -50,6 +59,21 @@ setopt HIST_IGNORE_SPACE
 alias ll="ls -lah"
 alias cat="bat"
 alias ss="source ~/.zshrc"
+alias ports="lsof -i -P -n | grep LISTEN"
+alias myip="curl -s ifconfig.me"
+alias path="echo \$PATH | tr ':' '\n'"
+alias reload="exec zsh"
+
+# --- Helpers ---
+newfile() {
+  cat > "$1" << 'EOF'
+# ------------------------------------------------------------------------------
+# 
+# ------------------------------------------------------------------------------
+
+EOF
+  vim "+normal 2G$" "$1"
+}
 
 # --- Autosuggestions ---
 {{- if eq .chezmoi.os "darwin" }}
@@ -66,29 +90,4 @@ alias ss="source ~/.zshrc"
 {{- end }}
 
 # --- Local ---
-[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local" ------------------------------------------------------------------------------
-" Vim Configuration
-" ------------------------------------------------------------------------------
-
-" --- Core ---
-
-syntax on
-set number
-set relativenumber
-set tabstop=2
-set shiftwidth=2
-set expandtab
-set autoindent
-set background=dark
-
-" --- Snippets ---
-" Note: section-divider/header snippets below use "#"-style comments,
-" intended for shell/config/TOML files rather than vim/Go/etc.
-
-" Section divider: \d in normal mode
-" Types "# ---  ---" and positions cursor between the dashes to type a label
-nnoremap <leader>d i# ---  ---<Esc>hhi
-
-" File header: \h in normal mode
-nnoremap <leader>h i# ------------------------------------------------------------------------------<CR># <CR># ------------------------------------------------------------------------------<Esc>kA
-
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
