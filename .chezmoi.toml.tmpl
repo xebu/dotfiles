@@ -16,3 +16,4 @@
 	email = "{{ promptStringOnce . "email" "Git email" }}"
 	editor = "vim"
 	device_id = "{{ promptStringOnce . "device_id" "Unique device identifier (e.g. mba, m5max, homelab-node1)" }}"
+  personal_device = {{ promptBoolOnce . "personal_device" "Is this a personal device" }}
