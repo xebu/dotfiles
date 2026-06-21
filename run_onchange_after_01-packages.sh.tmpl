@@ -99,6 +99,12 @@ if command -v mise &>/dev/null; then
   mise install
 fi
 
+# --- Go tools ---
+if command -v go &>/dev/null; then
+  echo "🔧 Installing Go tools..."
+  go install github.com/bootdotdev/bootdev@latest
+fi
+
 echo "📁 Creating directories..."
 mkdir -p ~/code/{work,personal}
 
