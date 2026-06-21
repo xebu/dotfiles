@@ -5,15 +5,21 @@
 # Re-run `chezmoi init` after adding a new key here — only the new key will
 # prompt, existing cached answers are not re-asked.
 #
-# device_id: a stable, hand-chosen identifier for this machine (e.g. "mba",
-# "m5max", "homelab-node1"). Used to branch SSH key selection per machine
-# without relying on the machine's hostname, which can change if the device
-# is ever renamed in System Settings.
+# device_id:   stable hardware tag (e.g. "mba", "m5max"). Drives SSH key
+#              filename selection in bin/setup-git-identity, independent of
+#              hostname. Chosen over hostname because hostname can silently
+#              change in System Settings.
+# device_name: the machine's hostname (Norse naming, e.g. "odin", "thor").
+#              Set by run_onchange_before_00-set-hostname, personal devices
+#              only.
+# personal_device: gates personal-only actions (hostname rename, personal
+#              casks). Answer false on client/managed machines.
 # ------------------------------------------------------------------------------
 
 [data]
-	name = "{{ promptStringOnce . "name" "Git name" }}"
-	email = "{{ promptStringOnce . "email" "Git email" }}"
-	editor = "vim"
-	device_id = "{{ promptStringOnce . "device_id" "Unique device identifier (e.g. mba, m5max, homelab-node1)" }}"
+  name = "{{ promptStringOnce . "name" "Git name" }}"
+  email = "{{ promptStringOnce . "email" "Git email" }}"
+  editor = "vim"
+  device_id = "{{ promptStringOnce . "device_id" "Unique device identifier (e.g. mba, m5max, homelab-node1)" }}"
+  device_name = "{{ promptStringOnce . "device_name" "Device hostname (e.g. odin, thor, sif)" }}"
   personal_device = {{ promptBoolOnce . "personal_device" "Is this a personal device" }}

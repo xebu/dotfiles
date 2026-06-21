@@ -1,7 +1,7 @@
-{{ if eq .chezmoi.os "darwin" -}}
+{{ if and (eq .chezmoi.os "darwin") (.personal_device | default false) -}}
 #!/bin/bash
 # =============================================================================
-# run_onchange_set-hostname.sh.tmpl
+# run_onchange_before_00-set-hostname.sh.tmpl
 # -----------------------------------------------------------------------------
 # Purpose : Set this Mac's device name (ComputerName / HostName / LocalHostName)
 #           to a hand-chosen value from chezmoi data.
@@ -10,10 +10,13 @@
 #           MDM). Driving the name from chezmoi data makes it stable and
 #           repeatable — part of the stateless/bootstrappable north star.
 #
-# Scope   : macOS only. The template-level {{ "{{ if eq .chezmoi.os \"darwin\" }}" }}
-#           guard means this script renders to an empty file on non-Darwin
-#           hosts, so it never runs on Linux. Linux hostname-setting will live
-#           in its own sibling script (hostnamectl, different name semantics).
+# Scope   : macOS AND personal devices only. The template guard renders this
+#           to an empty file unless both hold, so it never runs on Linux or on
+#           client/managed machines (personal_device = false / unset) — where
+#           renaming the host could break MDM enrolment. The `| default false`
+#           means a stale cached config missing the key degrades safely to
+#           "not personal" rather than erroring. Linux hostname-setting will
+#           live in its own sibling script (hostnamectl).
 #
 # Trigger : run_onchange_ — re-runs whenever the rendered content changes
 #           (i.e. when .device_name changes). The guard below makes it a
@@ -33,11 +36,13 @@ set -euo pipefail
 # -----------------------------------------------------------------------------
 # Config
 # -----------------------------------------------------------------------------
+
 DEVICE_NAME="{{ .device_name }}"
 
 # -----------------------------------------------------------------------------
 # Guard: skip if already set
 # -----------------------------------------------------------------------------
+
 CURRENT=$(scutil --get ComputerName 2>/dev/null || echo "")
 
 if [ "$CURRENT" = "$DEVICE_NAME" ]; then
@@ -48,6 +53,7 @@ fi
 # -----------------------------------------------------------------------------
 # Apply
 # -----------------------------------------------------------------------------
+
 echo "Setting hostname: '${CURRENT:-<unset>}' -> '${DEVICE_NAME}'..."
 
 sudo scutil --set ComputerName "$DEVICE_NAME"
