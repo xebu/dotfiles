@@ -11,7 +11,6 @@
 # - Screenshots
 # - Scrollbars
 # - Menu bar (battery percentage)
-# - Trackpad
 #
 # These are personal preferences, not a recommended baseline — fork and
 # adjust the `defaults write` values below to taste if reusing this repo.
@@ -74,15 +73,19 @@ defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 119 "{ e
 defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 120 "{ enabled = 1; value = { parameters = (65535, 20, 262144); type = standard; }; }"
 
 # --- Menu Bar / Battery ---
-# Lab note (2026-06-21): verified against a near-clean M5 Max (Mac17,7, macOS 26)
-# and thor (M2 Max, macOS 26.5.1). Findings:
+# Lab note (2026-06-21): verified against odin (M5 Max, Mac17,7) and thor
+# (M2 Max, Mac14,5), macOS 26. Findings:
 #   - The battery SYMBOL is visible by default on laptops. macOS sets
 #     `NSStatusItem VisibleCC Battery = 1` itself — no script line needed.
 #   - The old `NSStatusItem Visible Battery` key (no "CC") is a DEAD KEY on
 #     macOS 26: wrong name AND redundant. Removed.
 #   - Battery PERCENTAGE is the only part not on by default. It's a per-host
 #     key and is the single line worth keeping here.
-{{- $isLaptop := contains "MacBook" (output "sysctl" "-n" "hw.model" | trim) }}
+#   - LAPTOP DETECTION: `hw.model` no longer contains "MacBook" on recent
+#     Apple Silicon — it returns MacN,N identifiers (Mac14,5, Mac17,7) with no
+#     family word. The old `contains "MacBook"` test was false on EVERY modern
+#     laptop, silently skipping this block. Detect a battery directly instead.
+{{- $isLaptop := (output "pmset" "-g" "batt" | contains "InternalBattery") }}
 {{- if $isLaptop }}
 echo "🔋 Enabling battery percentage (laptop detected)..."
 defaults -currentHost write com.apple.controlcenter BatteryShowPercentage -bool true
