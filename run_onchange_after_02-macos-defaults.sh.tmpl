@@ -10,6 +10,8 @@
 # - Keyboard
 # - Screenshots
 # - Scrollbars
+# - Menu bar (battery percentage)
+# - Trackpad
 #
 # These are personal preferences, not a recommended baseline — fork and
 # adjust the `defaults write` values below to taste if reusing this repo.
@@ -32,7 +34,8 @@ defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int 1
 echo "🧭 Configuring Dock..."
 defaults write com.apple.dock autohide -bool true
 defaults write com.apple.dock autohide-delay -float 0
-defaults write com.apple.dock autohide-time-modifier -int 0
+# NOTE: autohide-time-modifier must be a float; -int 0 can be ignored by the Dock.
+defaults write com.apple.dock autohide-time-modifier -float 0
 defaults write com.apple.dock tilesize -int 36
 defaults write com.apple.dock mineffect -string "scale"
 defaults write com.apple.dock minimize-to-application -bool true
@@ -53,7 +56,10 @@ defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
 
 # --- Screenshots ---
 echo "📸 Configuring Screenshots..."
-defaults write com.apple.screencapture target clipboard
+# NOTE: target=clipboard means screenshots go to the clipboard, not disk —
+# so `type` and `disable-shadow` below have no effect on the default capture
+# path. Kept for when target is switched back to "file".
+defaults write com.apple.screencapture target -string "clipboard"
 defaults write com.apple.screencapture type -string "png"
 defaults write com.apple.screencapture disable-shadow -bool true
 
@@ -67,28 +73,46 @@ defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 118 "{ e
 defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 119 "{ enabled = 1; value = { parameters = (65535, 19, 262144); type = standard; }; }"
 defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 120 "{ enabled = 1; value = { parameters = (65535, 20, 262144); type = standard; }; }"
 
-# --- Menu Bar (Control Center) ---
-# Note: Most menu bar items are now managed via System Settings > Control Center
-
+# --- Menu Bar / Battery ---
+# Lab note (2026-06-21): verified against a near-clean M5 Max (Mac17,7, macOS 26)
+# and thor (M2 Max, macOS 26.5.1). Findings:
+#   - The battery SYMBOL is visible by default on laptops. macOS sets
+#     `NSStatusItem VisibleCC Battery = 1` itself — no script line needed.
+#   - The old `NSStatusItem Visible Battery` key (no "CC") is a DEAD KEY on
+#     macOS 26: wrong name AND redundant. Removed.
+#   - Battery PERCENTAGE is the only part not on by default. It's a per-host
+#     key and is the single line worth keeping here.
 {{- $isLaptop := contains "MacBook" (output "sysctl" "-n" "hw.model" | trim) }}
 {{- if $isLaptop }}
-# Laptop-specific: battery and time
-echo "🔋 Configuring battery (laptop detected)..."
-defaults write com.apple.controlcenter "NSStatusItem Visible Battery" -bool true
+echo "🔋 Enabling battery percentage (laptop detected)..."
 defaults -currentHost write com.apple.controlcenter BatteryShowPercentage -bool true
 {{- else }}
-echo "🖥️ Desktop detected — skipping battery settings"
+echo "🖥️ Desktop detected — skipping battery percentage"
 {{- end }}
+
+# --- Trackpad ---
+# Values lifted from the MBA (primary dev machine) where these work, not guessed:
+#   tap-to-click: Clicking=1 in BOTH trackpad domains + tapBehavior=1 global.
+#   All three are required for tap-to-click to fully stick.
+#   tracking speed: com.apple.trackpad.scaling=2.5 (float, ~0-3, higher=faster).
+echo "👆 Configuring Trackpad..."
+# Tap to click
+defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+# Tracking speed
+defaults write NSGlobalDomain com.apple.trackpad.scaling -float 2.5
 
 # --- Restart affected services ---
 echo "♻️ Restarting UI services..."
 killall Dock || true
 killall Finder || true
 killall SystemUIServer || true
+# ControlCenter must be restarted for battery/menu-bar changes to take effect.
+killall ControlCenter || true
 /System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
 
 echo "✅ macOS defaults applied"
 echo ""
 echo "⚠️  Some settings require logout/restart to take effect"
-echo "⚠️  Menu bar items: configure manually in System Settings > Control Center"
 {{- end }}
