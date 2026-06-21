@@ -2,26 +2,40 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# ------------------------------------------------------------------------------
+# Personal Applications
+# ------------------------------------------------------------------------------
+# Installed only on personal devices (personal_device = true).
+# ------------------------------------------------------------------------------
+
 echo "🎵 Installing personal applications..."
 
 apps=(
-	whatsapp
-	discord
-	signal
-	spotify
-	nordvpn
-	vlc
+  # --- Messaging ---
+  whatsapp
+  discord
+  signal
+
+  # --- Media ---
+  spotify
+  vlc
+
+  # --- Browsers ---
+  brave-browser
+  helium-browser
+
+  # --- VPN ---
+  nordvpn
 )
 
 for app in "${apps[@]}"; do
-	if brew list --cask "$app" &>/dev/null; then
-		echo "✅ $app already installed"
-	else
-		echo "📦 Installing $app..."
-		brew install --cask "$app"
-	fi
+  if brew list --cask "$app" &>/dev/null; then
+    echo "✅ $app already installed"
+  else
+    echo "📦 Installing $app..."
+    brew install --cask "$app"
+  fi
 done
-
 
 echo "✅ Personal applications installed."
 {{- end }}
