@@ -1,0 +1,61 @@
+{{ if eq .chezmoi.os "darwin" -}}
+#!/bin/bash
+# =============================================================================
+# run_onchange_set-hostname.sh.tmpl
+# -----------------------------------------------------------------------------
+# Purpose : Set this Mac's device name (ComputerName / HostName / LocalHostName)
+#           to a hand-chosen value from chezmoi data.
+#
+# Why     : macOS hostnames can silently change (network joins, System Settings,
+#           MDM). Driving the name from chezmoi data makes it stable and
+#           repeatable — part of the stateless/bootstrappable north star.
+#
+# Scope   : macOS only. The template-level {{ "{{ if eq .chezmoi.os \"darwin\" }}" }}
+#           guard means this script renders to an empty file on non-Darwin
+#           hosts, so it never runs on Linux. Linux hostname-setting will live
+#           in its own sibling script (hostnamectl, different name semantics).
+#
+# Trigger : run_onchange_ — re-runs whenever the rendered content changes
+#           (i.e. when .device_name changes). The guard below makes it a
+#           no-op when the name already matches, so it is safe on both fresh
+#           bootstraps and updates to existing devices.
+#
+# Value   : .device_name is prompted once via promptStringOnce in
+#           .chezmoi.toml.tmpl and stored (untracked) in
+#           ~/.config/chezmoi/chezmoi.toml.
+#
+# Note    : LocalHostName (the Bonjour ".local" name) cannot contain spaces or
+#           special characters.
+# =============================================================================
+
+set -euo pipefail
+
+# -----------------------------------------------------------------------------
+# Config
+# -----------------------------------------------------------------------------
+DEVICE_NAME="{{ .device_name }}"
+
+# -----------------------------------------------------------------------------
+# Guard: skip if already set
+# -----------------------------------------------------------------------------
+CURRENT=$(scutil --get ComputerName 2>/dev/null || echo "")
+
+if [ "$CURRENT" = "$DEVICE_NAME" ]; then
+  echo "Hostname already set to '${DEVICE_NAME}', skipping."
+  exit 0
+fi
+
+# -----------------------------------------------------------------------------
+# Apply
+# -----------------------------------------------------------------------------
+echo "Setting hostname: '${CURRENT:-<unset>}' -> '${DEVICE_NAME}'..."
+
+sudo scutil --set ComputerName "$DEVICE_NAME"
+sudo scutil --set HostName "$DEVICE_NAME"
+sudo scutil --set LocalHostName "$DEVICE_NAME"
+
+# Flush so the new name resolves promptly
+dscacheutil -flushcache
+
+echo "Done. Device name is now '${DEVICE_NAME}'."
+{{ end -}}
