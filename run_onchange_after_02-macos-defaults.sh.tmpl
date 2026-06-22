@@ -92,6 +92,7 @@ defaults -currentHost write com.apple.controlcenter Bluetooth -int 2
 #     Apple Silicon — it returns MacN,N identifiers (Mac14,5, Mac17,7) with no
 #     family word. The old `contains "MacBook"` test was false on EVERY modern
 #     laptop, silently skipping this block. Detect a battery directly instead.
+
 {{- $isLaptop := (output "pmset" "-g" "batt" | contains "InternalBattery") }}
 {{- if $isLaptop }}
 echo "🔋 Enabling battery percentage (laptop detected)..."
@@ -105,6 +106,7 @@ echo "🖥️ Desktop detected — skipping battery percentage"
 #   tap-to-click: Clicking=1 in BOTH trackpad domains + tapBehavior=1 global.
 #   All three are required for tap-to-click to fully stick.
 #   tracking speed: com.apple.trackpad.scaling=2.5 (float, ~0-3, higher=faster).
+
 echo "👆 Configuring Trackpad..."
 # Tap to click
 defaults write com.apple.AppleMultitouchTrackpad Clicking -bool true
@@ -112,6 +114,9 @@ defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool
 defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 # Tracking speed
 defaults write NSGlobalDomain com.apple.trackpad.scaling -float 2.5
+# Click pressure (0=light, 1=medium, 2=firm)
+defaults write com.apple.AppleMultitouchTrackpad FirstClickThreshold -int 0
+defaults write com.apple.AppleMultitouchTrackpad SecondClickThreshold -int 0
 
 # --- Restart affected services ---
 echo "♻️ Restarting UI services..."
