@@ -118,6 +118,14 @@ defaults write NSGlobalDomain com.apple.trackpad.scaling -float 2.5
 defaults write com.apple.AppleMultitouchTrackpad FirstClickThreshold -int 0
 defaults write com.apple.AppleMultitouchTrackpad SecondClickThreshold -int 0
 
+# --- Mouse ---
+# Separate key from trackpad scaling — does nothing for an external mouse.
+# Tuned by hand to 2.5 (same feel as trackpad, arrived at independently).
+# Read at login; log out/in for it to take effect. -float -1 disables
+# pointer acceleration entirely (not used here).
+echo "🖱️ Configuring Mouse tracking speed..."
+defaults write NSGlobalDomain com.apple.mouse.scaling -float 2.5
+
 # --- Restart affected services ---
 echo "♻️ Restarting UI services..."
 killall Dock || true
