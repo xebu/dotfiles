@@ -1,3 +1,4 @@
+```bash
 {{- if eq .chezmoi.os "darwin" -}}
 #!/usr/bin/env bash
 # ------------------------------------------------------------------------------
@@ -10,7 +11,7 @@
 # - Keyboard
 # - Screenshots
 # - Scrollbars
-# - Menu bar (battery percentage)
+# - Menu bar (battery percentage, Bluetooth)
 #
 # These are personal preferences, not a recommended baseline — fork and
 # adjust the `defaults write` values below to taste if reusing this repo.
@@ -72,7 +73,14 @@ defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 118 "{ e
 defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 119 "{ enabled = 1; value = { parameters = (65535, 19, 262144); type = standard; }; }"
 defaults write com.apple.symbolichotkeys AppleSymbolicHotKeys -dict-add 120 "{ enabled = 1; value = { parameters = (65535, 20, 262144); type = standard; }; }"
 
-# --- Menu Bar / Battery ---
+# --- Menu Bar ---
+# Lab note (2026-06-22): Bluetooth key is "NSStatusItem VisibleCC Bluetooth"
+# (not "Visible"). Also requires per-host Bluetooth=2 for "Show in Menu Bar".
+echo "📶 Configuring Menu Bar..."
+defaults write com.apple.controlcenter "NSStatusItem VisibleCC Bluetooth" -bool true
+defaults -currentHost write com.apple.controlcenter Bluetooth -int 2
+
+# --- Battery (laptops only) ---
 # Lab note (2026-06-21): verified against odin (M5 Max, Mac17,7) and thor
 # (M2 Max, Mac14,5), macOS 26. Findings:
 #   - The battery SYMBOL is visible by default on laptops. macOS sets
@@ -119,3 +127,4 @@ echo "✅ macOS defaults applied"
 echo ""
 echo "⚠️  Some settings require logout/restart to take effect"
 {{- end }}
+```
