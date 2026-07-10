@@ -13,6 +13,16 @@ set expandtab
 set autoindent
 set background=dark
 
+" --- Filetype indentation ---
+
+augroup FileTypeIndent
+  autocmd!
+  autocmd FileType python setlocal shiftwidth=4 softtabstop=4 expandtab textwidth=79 colorcolumn=88
+  autocmd FileType javascript,typescript,javascriptreact,typescriptreact setlocal shiftwidth=2 softtabstop=2 expandtab textwidth=100 colorcolumn=100
+  autocmd FileType yaml setlocal shiftwidth=2 softtabstop=2 expandtab indentkeys-=0#
+  autocmd FileType json,jsonc setlocal shiftwidth=2 softtabstop=2 expandtab
+augroup END
+
 " --- Snippets ---
 " Note: section-divider/header snippets below use "#"-style comments,
 " intended for shell/config/TOML files rather than vim/Go/etc.
