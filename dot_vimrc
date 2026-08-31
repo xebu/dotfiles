@@ -22,7 +22,7 @@ augroup FileTypeIndent
   autocmd FileType yaml setlocal shiftwidth=2 softtabstop=2 expandtab indentkeys-=0#
   autocmd FileType json,jsonc setlocal shiftwidth=2 softtabstop=2 expandtab
   autocmd FileType toml setlocal shiftwidth=2 softtabstop=2 expandtab
-  autocmd FileType terraform setlocal shiftwidth=2 softtabstop=2 expandtab
+  autocmd FileType tf setlocal shiftwidth=2 softtabstop=2 expandtab
   autocmd FileType ruby,eruby setlocal shiftwidth=2 softtabstop=2 expandtab
   autocmd FileType sh setlocal shiftwidth=2 softtabstop=2 expandtab
   autocmd FileType dockerfile setlocal shiftwidth=2 softtabstop=2 expandtab
