@@ -21,6 +21,13 @@ augroup FileTypeIndent
   autocmd FileType javascript,typescript,javascriptreact,typescriptreact setlocal shiftwidth=2 softtabstop=2 expandtab textwidth=100 colorcolumn=100
   autocmd FileType yaml setlocal shiftwidth=2 softtabstop=2 expandtab indentkeys-=0#
   autocmd FileType json,jsonc setlocal shiftwidth=2 softtabstop=2 expandtab
+  autocmd FileType toml setlocal shiftwidth=2 softtabstop=2 expandtab
+  autocmd FileType terraform setlocal shiftwidth=2 softtabstop=2 expandtab
+  autocmd FileType ruby,eruby setlocal shiftwidth=2 softtabstop=2 expandtab
+  autocmd FileType sh setlocal shiftwidth=2 softtabstop=2 expandtab
+  autocmd FileType dockerfile setlocal shiftwidth=2 softtabstop=2 expandtab
+  autocmd FileType c setlocal cindent shiftwidth=4 softtabstop=4 expandtab
+  autocmd FileType go setlocal noexpandtab shiftwidth=4 tabstop=4
 augroup END
 
 " --- Snippets ---
