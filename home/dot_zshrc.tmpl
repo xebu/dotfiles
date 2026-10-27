@@ -64,8 +64,18 @@ setopt SHARE_HISTORY
 setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_SPACE
 
+# --- Listing (eza) ---
+# `ls` stays the real ls, so habits carry over to servers. eza gets its own
+# names. Falls back to plain ls where eza isn't installed.
+if command -v eza &>/dev/null; then
+  alias ll="eza -la --git --icons=always --group-directories-first"  # long list + git status
+  alias lt="eza --tree --level=2 --git-ignore --icons=always"        # tree; deeper: lt --level=4
+  alias lm="eza -la --sort=modified --icons=always"                  # newest last, like ls -ltr
+else
+  alias ll="ls -lah"
+fi
+
 # --- Aliases ---
-alias ll="ls -lah"
 alias cat="bat"
 alias ss="source ~/.zshrc"
 alias ports="lsof -i -P -n | grep LISTEN"
