@@ -1,0 +1,30 @@
+#!/bin/bash
+set -euo pipefail
+
+# ------------------------------------------------------------------------------
+# mise: language runtimes
+# ------------------------------------------------------------------------------
+# Runs after 10-packages (which installs mise itself). Re-runs whenever the
+# mise config changes; the hash below is what chezmoi sees change:
+#   mise config sha256: {{ include "dot_config/mise/config.toml" | sha256sum }}
+#
+# Language-installed tools that update often (e.g. bootdev) are deliberately
+# not installed here: run_onchange would only ever install them once, so they
+# would never stay current. Install them by hand (see README).
+# ------------------------------------------------------------------------------
+
+{{- if eq .chezmoi.os "darwin" }}
+eval "$(/opt/homebrew/bin/brew shellenv)"
+{{- else }}
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv 2>/dev/null || true)"
+{{- end }}
+
+if ! command -v mise &>/dev/null; then
+  echo "⚠️  mise not found; skipping (it should come from 10-packages)"
+  exit 0
+fi
+
+echo "🔧 Installing mise-managed languages..."
+mise install
+
+echo "✅ mise done"

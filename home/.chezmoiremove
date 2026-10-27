@@ -1,0 +1,11 @@
+# ------------------------------------------------------------------------------
+# Targets chezmoi deletes on apply
+# ------------------------------------------------------------------------------
+# bootdev is a personal learning tool and must not live on client machines.
+# Older versions of this repo installed it everywhere, so remove it from
+# client Macs (personal_device = false). Personal Macs keep it; install or
+# update it there by hand (see README).
+# ------------------------------------------------------------------------------
+{{- if not (index . "personal_device" | default false) }}
+go/bin/bootdev
+{{- end }}

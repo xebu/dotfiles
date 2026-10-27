@@ -41,18 +41,6 @@ else
   echo "   then re-check with: brew bundle check --global --verbose --no-upgrade"
 fi
 
-# --- mise-managed languages ---
-if command -v mise &>/dev/null; then
-  echo "🔧 Installing mise-managed languages..."
-  mise install
-fi
-
-# --- Go tools ---
-if command -v go &>/dev/null; then
-  echo "🔧 Installing Go tools..."
-  go install github.com/bootdotdev/bootdev@latest
-fi
-
 echo "📁 Creating directories..."
 mkdir -p ~/code/{work,personal}
 
