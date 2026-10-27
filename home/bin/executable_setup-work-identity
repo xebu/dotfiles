@@ -52,7 +52,10 @@ cat "$config_file"
 include_block="[includeIf \"gitdir:~/code/work/$client_name/\"]"
 
 touch "$gitconfig_local"
-if grep -q "$include_block" "$gitconfig_local" 2>/dev/null; then
+# -F: the block contains [ ] which grep would otherwise treat as a regex
+# character class, matching almost any line (so only the first client was
+# ever wired up).
+if grep -qF -- "$include_block" "$gitconfig_local" 2>/dev/null; then
     echo ""
     echo "ℹ️  includeIf already present in ~/.gitconfig-local"
 else

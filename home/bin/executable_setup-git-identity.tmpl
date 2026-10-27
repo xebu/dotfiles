@@ -52,7 +52,8 @@ else
 fi
 
 # --- Add to SSH config ---
-if grep -q "Host $host_alias" "$SSH_CONFIG" 2>/dev/null; then
+# -x -F: match the whole line literally, so "github-jat" doesn't match "github-jatin"
+if grep -qxF "Host $host_alias" "$SSH_CONFIG" 2>/dev/null; then
     echo "⚠️  Host $host_alias already in SSH config"
 else
     cat >> "$SSH_CONFIG" <<EOF
@@ -72,10 +73,11 @@ EOF
 fi
 
 # --- Add to agent ---
+# Non-fatal: if no agent is running, carry on so the public key still prints.
 {{- if eq .chezmoi.os "darwin" }}
-ssh-add --apple-use-keychain "$keypath" 2>/dev/null || ssh-add "$keypath"
+ssh-add --apple-use-keychain "$keypath" 2>/dev/null || ssh-add "$keypath" || echo "⚠️  Could not add key to ssh-agent (continuing)"
 {{- else }}
-ssh-add "$keypath"
+ssh-add "$keypath" || echo "⚠️  Could not add key to ssh-agent (continuing)"
 {{- end }}
 
 # --- Copy public key ---

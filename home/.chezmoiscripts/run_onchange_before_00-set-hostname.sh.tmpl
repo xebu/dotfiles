@@ -1,4 +1,4 @@
-{{ if and (eq .chezmoi.os "darwin") (.personal_device | default false) -}}
+{{ if and (eq .chezmoi.os "darwin") (index . "personal_device" | default false) -}}
 #!/bin/bash
 # =============================================================================
 # run_onchange_before_00-set-hostname.sh.tmpl
@@ -13,9 +13,11 @@
 # Scope   : macOS AND personal devices only. The template guard renders this
 #           to an empty file unless both hold, so it never runs on Linux or on
 #           client/managed machines (personal_device = false / unset) — where
-#           renaming the host could break MDM enrolment. The `| default false`
-#           means a stale cached config missing the key degrades safely to
-#           "not personal" rather than erroring. Linux hostname-setting will
+#           renaming the host could break MDM enrolment. The guard uses
+#           `index . "personal_device" | default false` so a stale cached
+#           config missing the key degrades safely to "not personal". (A bare
+#           `.personal_device` would error first: chezmoi templates run with
+#           missingkey=error.) Linux hostname-setting will
 #           live in its own sibling script (hostnamectl).
 #
 # Trigger : run_onchange_ — re-runs whenever the rendered content changes

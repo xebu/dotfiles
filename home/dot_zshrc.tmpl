@@ -4,7 +4,6 @@
 
 # --- Path ---
 export PATH="$HOME/bin:$PATH"
-export PATH="$PATH:$HOME/.local/opt/go/bin"
 export PATH="$PATH:$HOME/go/bin"
 
 # --- Homebrew ---
@@ -28,6 +27,11 @@ bindkey -e  # emacs mode (Ctrl+A/E/R work as expected)
 # --- mise ---
 if command -v mise &>/dev/null; then
   eval "$(mise activate zsh)"
+fi
+
+# --- direnv ---
+if command -v direnv &>/dev/null; then
+  eval "$(direnv hook zsh)"
 fi
 
 # --- fzf ---
