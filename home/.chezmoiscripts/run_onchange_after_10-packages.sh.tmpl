@@ -2,14 +2,23 @@
 set -euo pipefail
 
 # ------------------------------------------------------------------------------
-# Core Package Installation
+# Package Installation (brew bundle)
 # ------------------------------------------------------------------------------
-# Curated core packages + casks (macOS only). This is the declared/target
-# state — if a machine's `brew list` has drifted beyond this list, that's
-# accumulated manual installs, not a reflection of what this script defines.
+# Installs everything declared in .chezmoidata/packages.yaml, rendered to
+# ~/.Brewfile (applied before this script runs, as it is an _after_ script).
+#
+# Re-runs whenever the rendered Brewfile changes; the hash below is what
+# chezmoi sees change:
+#   Brewfile sha256: {{ includeTemplate "Brewfile" . | sha256sum }}
+#
+# --no-upgrade: only install what's missing, like the old per-package loop.
+# Upgrades stay a deliberate `brew upgrade` / `brew bundle upgrade --global`.
+#
+# Failures don't abort chezmoi apply (the old script tolerated cask
+# failures too). The usual cause is an app installed by hand rather than via
+# Homebrew ("It seems there is already an App at ..."). Fix with:
+#   brew install --cask --adopt <name>
 # ------------------------------------------------------------------------------
-
-echo "📦 Installing core packages ..."
 
 {{- if eq .chezmoi.os "darwin" }}
 eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -17,88 +26,20 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv 2>/dev/null || true)"
 {{- end }}
 
-packages=(
-  # --- Core ---
-  bash
-  bat
-  bitwarden-cli
-  delta
-  direnv
-  eza
-  fd
-  ffmpeg
-  fzf
-  gh
-  git
-  git-lfs
-  glow
-  jq
-  mise
-  ripgrep
-  starship
-  tldr
-  tmux
-  tree
-  uv
-  vim
-  wget
-  yq
-  zoxide
-  zsh-autosuggestions
-  zsh-syntax-highlighting
+brewfile="$HOME/.Brewfile"
 
-  # --- Cloud CLIs ---
-  awscli
-  azure-cli
-)
-
-for pkg in "${packages[@]}"; do
-    if brew list "$pkg" &>/dev/null; then
-        echo "✅ $pkg"
-    else
-        brew install "$pkg"
-    fi
-done
-
-{{- if eq .chezmoi.os "darwin" }}
-# Casks - MacOS only
-casks=(
-  # --- Core ---
-  alfred
-  ghostty
-  visual-studio-code
-
-  # --- Cloud ---
-  google-cloud-sdk
-
-  # --- Dev tools ---
-  docker-desktop
-  jetbrains-toolbox
-  # insomnia
-
-  # --- Productivity ---
-  google-chrome
-  firefox
-  obsidian
-  rectangle
-  slack
-
-)
-
-for cask in "${casks[@]}"; do
-    if brew list --cask "$cask" &>/dev/null; then
-        echo "✅ $cask (brew)"
-    else
-        output=$(brew install --cask "$cask" 2>&1) || {
-            if echo "$output" | grep -q "already an App"; then
-                echo "✅ $cask (external)"
-            else
-                echo "❌ $cask failed: $output"
-            fi
-        }
-    fi
-done
-{{- end }}
+echo "📦 Installing packages from $brewfile ..."
+if brew bundle install --file="$brewfile" --no-upgrade; then
+  echo "✅ All declared packages installed"
+else
+  echo ""
+  echo "⚠️  brew bundle reported failures. Still missing:"
+  brew bundle check --file="$brewfile" --verbose --no-upgrade || true
+  echo ""
+  echo "   If an app was installed outside Homebrew, adopt it with:"
+  echo "     brew install --cask --adopt <name>"
+  echo "   then re-check with: brew bundle check --global --verbose --no-upgrade"
+fi
 
 # --- mise-managed languages ---
 if command -v mise &>/dev/null; then

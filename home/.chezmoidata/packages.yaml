@@ -1,0 +1,99 @@
+# ------------------------------------------------------------------------------
+# Homebrew Packages
+# ------------------------------------------------------------------------------
+# Declared/target state for every Mac. Rendered to ~/.Brewfile (via
+# .chezmoitemplates/Brewfile) and installed by
+# .chezmoiscripts/run_onchange_after_10-packages.sh.tmpl with `brew bundle`.
+# Editing this file re-runs that script on the next apply.
+#
+# Groups:
+#   core, cloud, dev, productivity -> every machine
+#   personal                       -> only when personal_device = true
+#
+# brews: formulae (macOS + Linux). casks: macOS apps only.
+#
+# Drift checks on any machine:
+#   brew bundle check --global --verbose --no-upgrade   # declared but missing
+#   brew bundle cleanup --global           # installed but not declared (dry run)
+# ------------------------------------------------------------------------------
+
+packages:
+  core:
+    brews:
+      - bash
+      - bat
+      - bitwarden-cli
+      - delta
+      - direnv
+      - eza
+      - fd
+      - ffmpeg
+      - fzf
+      - gh
+      - git
+      - git-lfs
+      - glow
+      - jq
+      - mise
+      - ripgrep
+      - starship
+      - tldr
+      - tmux
+      - tree
+      - uv
+      - vim
+      - wget
+      - yq
+      - zoxide
+      - zsh-autosuggestions
+      - zsh-syntax-highlighting
+    casks:
+      - alfred
+      - ghostty
+
+  cloud:
+    brews:
+      - awscli
+      - azure-cli
+    casks:
+      - gcloud-cli
+
+  dev:
+    casks:
+      - docker-desktop
+      - jetbrains-toolbox
+      - visual-studio-code
+      # - insomnia
+
+  productivity:
+    casks:
+      - google-chrome
+      - firefox
+      - obsidian
+      - rectangle
+      - slack
+
+  personal:
+    casks:
+      # --- Messaging ---
+      - whatsapp
+      - discord
+      - signal
+      # --- Media ---
+      - spotify
+      - vlc
+      # --- Browsers ---
+      - brave-browser
+      - helium-browser
+      # --- AI/LLM ---
+      - claude
+      - claude-code
+      - lm-studio
+      # --- Cloud storage ---
+      - google-drive
+      # --- Dev ---
+      - ngrok
+      # --- Utilities ---
+      - balenaetcher
+      # --- VPN ---
+      - nordvpn
