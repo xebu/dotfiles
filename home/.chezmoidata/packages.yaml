@@ -76,7 +76,6 @@ packages:
   personal:
     casks:
       # --- Messaging ---
-      - whatsapp
       - discord
       - signal
       # --- Media ---
