@@ -1,7 +1,15 @@
 # ------------------------------------------------------------------------------
-# Chezmoi Ignore Rules
+# Transition guard for the move to home/ (.chezmoiroot)
 # ------------------------------------------------------------------------------
-# No active rules currently.
-# Kept as a placeholder — add rules here if a genuine need arises (e.g.
-# excluding a file only on certain Linux distros once that work starts).
+# chezmoi's source root is now home/ (see .chezmoiroot), so this file is
+# normally never read. It only matters for the ONE `chezmoi update` on a
+# machine still running the old layout: that run pulls the new commits but
+# applies them using the old root (the repo root). Without this guard it
+# would create ~/home, ~/docs and ~/README.md. With it, that run is a no-op
+# and the next `chezmoi apply` uses home/ correctly.
+#
+# Safe to delete once every machine has applied the new layout.
 # ------------------------------------------------------------------------------
+README.md
+docs
+home
