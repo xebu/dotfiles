@@ -2,41 +2,62 @@
 " Vim Configuration
 " ------------------------------------------------------------------------------
 
+" --- Defaults ---
+" Having a ~/.vimrc stops Vim loading defaults.vim (backspace, incsearch,
+" ruler, showcmd, wildmenu, ...). Load it explicitly, then override below.
+unlet! skip_defaults_vim
+source $VIMRUNTIME/defaults.vim
+
 " --- Core ---
 
+filetype plugin indent on   " per-language settings (e.g. real tabs in Makefiles)
 syntax on
 set number
 set relativenumber
-set tabstop=2
 set shiftwidth=2
+set softtabstop=-1          " follow shiftwidth
 set expandtab
 set autoindent
 set background=dark
 
 " --- Filetype indentation ---
+" Only the languages that differ from the 2-space default above.
+" colorcolumn is a guide only: wrapping is left to formatters (ruff/black,
+" prettier), since textwidth would hard-wrap code as you type.
 
 augroup FileTypeIndent
   autocmd!
-  autocmd FileType python setlocal shiftwidth=4 softtabstop=4 expandtab textwidth=79 colorcolumn=88
-  autocmd FileType javascript,typescript,javascriptreact,typescriptreact setlocal shiftwidth=2 softtabstop=2 expandtab textwidth=100 colorcolumn=100
-  autocmd FileType yaml setlocal shiftwidth=2 softtabstop=2 expandtab indentkeys-=0#
-  autocmd FileType json,jsonc setlocal shiftwidth=2 softtabstop=2 expandtab
-  autocmd FileType toml setlocal shiftwidth=2 softtabstop=2 expandtab
-  autocmd FileType tf setlocal shiftwidth=2 softtabstop=2 expandtab
-  autocmd FileType ruby,eruby setlocal shiftwidth=2 softtabstop=2 expandtab
-  autocmd FileType sh setlocal shiftwidth=2 softtabstop=2 expandtab
-  autocmd FileType dockerfile setlocal shiftwidth=2 softtabstop=2 expandtab
-  autocmd FileType c setlocal cindent shiftwidth=4 softtabstop=4 expandtab
+  autocmd FileType python setlocal shiftwidth=4 colorcolumn=88
+  autocmd FileType javascript,typescript,javascriptreact,typescriptreact setlocal colorcolumn=100
+  autocmd FileType yaml setlocal indentkeys-=0#
+  autocmd FileType c setlocal cindent shiftwidth=4
   autocmd FileType go setlocal noexpandtab shiftwidth=4 tabstop=4
 augroup END
 
 " --- Snippets ---
 " Note: section-divider/header snippets below use "#"-style comments,
 " intended for shell/config/TOML files rather than vim/Go/etc.
+" They are functions called via <Cmd>, which never touches the command line,
+" so typed keys can't be lost and auto-inserted comment leaders can't double
+" up the "#".
 
 " Section divider: \d in normal mode
-" Types "# ---  ---" and positions cursor between the dashes to type a label
-nnoremap <leader>d i# ---  ---<Esc>hhi
+" Replaces the current line with "# ---  ---" and starts typing between the dashes.
+function! s:SectionDivider() abort
+  call setline('.', '# ---  ---')
+  call cursor(line('.'), 7)
+  startinsert
+endfunction
 
 " File header: \h in normal mode
-nnoremap <leader>h i# ------------------------------------------------------------------------------<CR># <CR># ------------------------------------------------------------------------------<Esc>kA
+" Inserts the 3-line header above the cursor and starts typing on the middle line.
+function! s:FileHeader() abort
+  let l:lnum = line('.')
+  let l:rule = '# ' . repeat('-', 78)
+  call append(l:lnum - 1, [l:rule, '# ', l:rule])
+  call cursor(l:lnum + 1, 1)
+  startinsert!
+endfunction
+
+nnoremap <silent> <leader>d <Cmd>call <SID>SectionDivider()<CR>
+nnoremap <silent> <leader>h <Cmd>call <SID>FileHeader()<CR>
