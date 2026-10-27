@@ -3,37 +3,14 @@
 # ------------------------------------------------------------------------------
 
 # --- Theme ---
-
-# Catppuccin
-# theme = Catppuccin Mocha
-# theme = Catppuccin Macchiato
-# theme = Catppuccin Frappe
-# theme = Catppuccin Latte
-
-# Everforest
-# theme = Everforest Dark Hard
-# theme = Everforest Light Med
-
-# Gruvbox
-# theme = Gruvbox Dark
+# Also tried: Catppuccin (Mocha/Macchiato/Frappe/Latte), Everforest,
+# other Gruvbox variants, Cyberpunk, Ayu. Browse all with:
+#   ghostty +list-themes
 theme = Gruvbox Dark Hard
-# theme = Gruvbox Light
-# theme = Gruvbox Material
-# theme = Gruvbox Material Dark
-# theme = Gruvbox Material Light
 
 # Borrow Gruvbox Material's softer red; keep Dark Hard for everything else
 # palette = 1=ea6962
 # palette = 9=ea6962
-
-# Cyberpunk
-# theme = Cyberpunk
-# theme = Cyberpunk Scarlet Protocol
-
-# Ayu
-# theme = Ayu
-# theme = Ayu Light
-# theme = Ayu Mirage
 
 # --- Appearance ---
 font-size = 20

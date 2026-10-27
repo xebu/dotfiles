@@ -133,7 +133,9 @@ killall Finder || true
 killall SystemUIServer || true
 # ControlCenter must be restarted for battery/menu-bar changes to take effect.
 killall ControlCenter || true
-/System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u
+# Private framework: may move or disappear in a future macOS. Don't let that
+# fail the whole script after every setting has already been written.
+/System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings -u || true
 
 echo "✅ macOS defaults applied"
 echo ""
