@@ -54,8 +54,8 @@ packages:
   cloud:
     brews:
       - awscli
-      - azure-cli
     casks:
+      - azure-cli
       - gcloud-cli
 
   dev:
