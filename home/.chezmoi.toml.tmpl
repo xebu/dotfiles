@@ -5,21 +5,31 @@
 # Re-run `chezmoi init` after adding a new key here — only the new key will
 # prompt, existing cached answers are not re-asked.
 #
-# device_id:   stable hardware tag (e.g. "mba", "m5max"). Drives SSH key
-#              filename selection in bin/setup-git-identity, independent of
-#              hostname. Chosen over hostname because hostname can silently
-#              change in System Settings.
+# personal_device: asked first. Gates personal-only actions (hostname rename,
+#              personal apps). Answer false on client/managed machines.
+# device_id:   stable hardware tag (e.g. "mba", "m5max", "client1"). Used in
+#              SSH key filenames by bin/setup-git-identity, independent of
+#              hostname.
 # device_name: the machine's hostname (Norse naming, e.g. "odin", "thor").
-#              Set by run_onchange_before_00-set-hostname, personal devices
-#              only.
-# personal_device: gates personal-only actions (hostname rename, personal
-#              casks). Answer false on client/managed machines.
+#              Personal devices only: asked and set (by
+#              run_onchange_before_00-set-hostname) only when
+#              personal_device = true. Client machines keep their own name.
+# brew_skip:   optional, never prompted. Add by hand under [data] in
+#              ~/.config/chezmoi/chezmoi.toml to leave apps out of this
+#              machine's Brewfile, e.g. brew_skip = ["slack"] for apps a
+#              client's device management installs. Kept across chezmoi init.
 # ------------------------------------------------------------------------------
 
+{{- $personal := promptBoolOnce . "personal_device" "Is this a personal device" }}
 [data]
   name = "{{ promptStringOnce . "name" "Git name" }}"
   email = "{{ promptStringOnce . "email" "Git email" }}"
   editor = "vim"
-  device_id = "{{ promptStringOnce . "device_id" "Unique device identifier (e.g. mba, m5max, homelab-node1)" }}"
+  device_id = "{{ promptStringOnce . "device_id" "Unique device identifier (e.g. mba, m5max, client1)" }}"
+  personal_device = {{ $personal }}
+{{- if $personal }}
   device_name = "{{ promptStringOnce . "device_name" "Device hostname (e.g. odin, thor, sif)" }}"
-  personal_device = {{ promptBoolOnce . "personal_device" "Is this a personal device" }}
+{{- end }}
+{{- with index . "brew_skip" }}
+  brew_skip = {{ . | toJson }}
+{{- end }}
