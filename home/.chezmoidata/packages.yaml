@@ -37,7 +37,7 @@ packages:
       - mise
       - ripgrep
       - starship
-      - tldr
+      - tlrc
       - tmux
       - tree
       - uv
